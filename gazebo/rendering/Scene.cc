@@ -206,6 +206,24 @@ Scene::Scene(const std::string &_name, const bool _enableVisualizations,
 
   this->dataPtr->sceneSimTimePosesApplied = common::Time();
   this->dataPtr->sceneSimTimePosesReceived = common::Time();
+
+  // Get shadow caster material name from physics::World
+  ignition::transport::Node node;
+  ignition::msgs::StringMsg req;
+  ignition::msgs::StringMsg rep;
+  bool result;
+  unsigned int timeout = 5000;
+  bool executed = node.Request("/shadow_caster_material_name",
+      req, timeout, rep, result);
+  if (executed)
+  {
+    if (result)
+      this->dataPtr->shadowCasterMaterialName = rep.data();
+    else
+      std::cout << "Service call failed" << std::endl;
+  }
+  else
+    std::cerr << "Service call timed out" << std::endl;
 }
 
 //////////////////////////////////////////////////
@@ -3283,6 +3301,12 @@ unsigned int Scene::ShadowTextureSize() const
     return RTShaderSystem::Instance()->ShadowTextureSize();
   else
     return this->dataPtr->shadowTextureSize;
+}
+
+/////////////////////////////////////////////////
+std::string Scene::ShadowCasterMaterialName() const
+{
+  return this->dataPtr->shadowCasterMaterialName;
 }
 
 /////////////////////////////////////////////////
